@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Visualizador de Desigualdades</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f4f4f4;
+      padding: 40px;
+      color: #333;
+    }
+
+    .container {
+      max-width: 850px;
+      margin: auto;
+      background-color: #fff;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 25px;
+      color: #1a73e8;
+    }
+
+    label {
+      font-weight: 600;
+      margin-top: 15px;
+      display: block;
+    }
+
+    .desigualdad {
+      display: flex;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .desigualdad input {
+      flex: 1;
+      padding: 10px;
+      margin-right: 10px;
+      font-size: 16px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
+
+    .desigualdad input[type="color"] {
+      width: 50px;
+      padding: 0;
+      border: none;
+    }
+
+    button {
+      margin-top: 15px;
+      padding: 10px 20px;
+      font-size: 16px;
+      border: none;
+      background-color: #1a73e8;
+      color: white;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #155ab6;
+    }
+
+    #calculator {
+      width: 100%;
+      height: 500px;
+      margin-top: 30px;
+      border-radius: 12px;
+      overflow: hidden;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <h1>Visualizador de Desigualdades</h1>
+
+  <form id="formulario">
+    <div id="campos"></div>
+    <button type="button" onclick="agregarCampo()">➕ Añadir desigualdad</button>
+    <button type="submit">📊 Graficar</button>
+  </form>
+
+  <div id="calculator"></div>
+</div>
+
+<!-- Librería Desmos -->
+<script src="https://www.desmos.com/api/v1.6/calculator.js?apiKey=demo"></script>
+<script>
+  const calculator = Desmos.GraphingCalculator(document.getElementById('calculator'), {
+    expressions: true,
+    settingsMenu: false,
+    zoomButtons: true,
+    expressionsTopbar: false
+  });
+
+  const camposDiv = document.getElementById('campos');
+  let count = 0;
+
+  function agregarCampo(valor = '', color = '#1a73e8') {
+    const div = document.createElement('div');
+    div.className = 'desigualdad';
+    div.innerHTML = `
+      <input type="text" name="desigualdad" placeholder="Ej: y < 2x + 3" value="${valor}">
+      <input type="color" name="color" value="${color}">
+    `;
+    camposDiv.appendChild(div);
+    count++;
+  }
+
+  document.getElementById('formulario').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const inputs = document.querySelectorAll('.desigualdad');
+    calculator.setExpressions([]); // Limpiar todo
+
+    inputs.forEach((grupo, index) => {
+      const ineq = grupo.querySelector('input[type="text"]').value.trim();
+      const color = grupo.querySelector('input[type="color"]').value;
+
+      if (ineq !== '') {
+        try {
+          calculator.setExpression({
+            id: `expr${index}`,
+            latex: ineq,
+            color: color
+          });
+        } catch (error) {
+          console.warn(`Error en la desigualdad ${index + 1}: ${ineq}`);
+        }
+      }
+    });
+  });
+
+  // Inicializa con un campo por defecto
+  agregarCampo();
+</script>
+
+</body>
+</html>
